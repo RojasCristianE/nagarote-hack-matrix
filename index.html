@@ -104,7 +104,7 @@
         /* Matrix Grid System */
         .matrix-container {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 1rem;
             background: rgba(10, 12, 18, 0.4);
             border: 1px solid var(--card-border);
@@ -138,7 +138,6 @@
         .column-wrapper:nth-child(2) .column-header { color: #fb7185; border-color: rgba(251, 113, 133, 0.3); }
         .column-wrapper:nth-child(3) .column-header { color: #38bdf8; border-color: rgba(56, 189, 248, 0.3); }
         .column-wrapper:nth-child(4) .column-header { color: #818cf8; border-color: rgba(129, 140, 248, 0.3); }
-        .column-wrapper:nth-child(5) .column-header { color: #fbbf24; border-color: rgba(251, 191, 36, 0.3); }
 
         .cell {
             background: var(--card-bg);
@@ -376,8 +375,7 @@
                 grid-template-columns: repeat(3, 1fr);
                 gap: 1.2rem;
             }
-            .column-wrapper:nth-child(4),
-            .column-wrapper:nth-child(5) {
+            .column-wrapper:nth-child(4) {
                 grid-column: span 1.5;
             }
         }
@@ -386,10 +384,6 @@
             .matrix-container {
                 grid-template-columns: 1fr;
                 gap: 1.5rem;
-            }
-            .column-wrapper:nth-child(4),
-            .column-wrapper:nth-child(5) {
-                grid-column: span 1;
             }
             .output-grid {
                 grid-template-columns: 1fr;
@@ -445,11 +439,6 @@
                 <div class="column-header">4. Interfaz</div>
             </div>
 
-            <!-- Column 5: Identidad Cultural -->
-            <div class="column-wrapper" id="col-4">
-                <div class="column-header">5. Activo Cultural</div>
-            </div>
-
         </div>
 
         <!-- Output Fields & AI Prompt Copy -->
@@ -460,7 +449,7 @@
                 <h3>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
                     Combinación Seleccionada
-                    <span class="coordinate-badge" id="coord-badge">C1-F1-T1-I1-A1</span>
+                    <span class="coordinate-badge" id="coord-badge">A1-B1-C1-D1</span>
                 </h3>
 
                 <div class="concept-item">
@@ -476,11 +465,6 @@
                 <div class="concept-item">
                     <span class="concept-label">Tecnología + Interfaz</span>
                     <span class="concept-value" id="val-tech">Cargando...</span>
-                </div>
-
-                <div class="concept-item">
-                    <span class="concept-label">Anclaje Cultural local</span>
-                    <span class="concept-value" id="val-cultural">Cargando...</span>
                 </div>
 
                 <!-- Live Generated MVP Suggestion -->
@@ -558,22 +542,11 @@
                 "Gráficos y tableros web de control extremadamente sencillos.",
                 "Sistema de comandos SMS/códigos cortos (para celulares básicos no inteligentes).",
                 "Mecánica de juego interactivo simple (trivias y recompensas en comercios locales)."
-            ],
-            // Column 5: Activo Cultural / Identidad de Nagarote
-            [
-                "El Quesillo de Nagarote con su cebolla encurtida y crema fresca.",
-                "Panes tradicionales y la cosa de horno de leña recién horneada.",
-                "El histórico y centenario Árbol del Genízaro en el centro del pueblo.",
-                "Playas turísticas y de surf de Miramar, El Velero y la ola de Puerto Sandino.",
-                "El orgullo cívico y reputación de ser \"La Ciudad más Limpia de Nicaragua\".",
-                "Lanchas de madera y la pesca artesanal fresca del día.",
-                "Mitos locales y folklore tradicional (La carreta naguate y leyendas).",
-                "La vida ganadera, las comarcas agrícolas y la resiliencia en la zona seca."
             ]
         ];
 
-        // State containing current selection indices [col0, col1, col2, col3, col4]
-        let currentSelection = [0, 0, 0, 0, 0];
+        // State containing current selection indices [col0, col1, col2, col3]
+        let currentSelection = [0, 0, 0, 0];
 
         // Generate Cells on startup
         window.addEventListener('DOMContentLoaded', () => {
@@ -582,7 +555,7 @@
         });
 
         function generateMatrixHTML() {
-            for (let colIdx = 0; colIdx < 5; colIdx++) {
+            for (let colIdx = 0; colIdx < 4; colIdx++) {
                 const columnContainer = document.getElementById(`col-${colIdx}`);
                 const options = matrixData[colIdx];
                 
@@ -619,28 +592,25 @@
             const f = matrixData[1][currentSelection[1]];
             const t = matrixData[2][currentSelection[2]];
             const i = matrixData[3][currentSelection[3]];
-            const c = matrixData[4][currentSelection[4]];
 
             document.getElementById('val-user').textContent = u;
             document.getElementById('val-friction').textContent = f;
             document.getElementById('val-tech').textContent = `${t} (Interactúa mediante: ${i})`;
-            document.getElementById('val-cultural').textContent = c;
 
             // Generate real-time solution suggestion logic
-            generateLiveSuggestion(u, f, t, i, c);
+            generateLiveSuggestion(u, f, t, i);
             
             // Build and display AI prompt
-            generateAIPrompt(u, f, t, i, c, coord);
+            generateAIPrompt(u, f, t, i, coord);
         }
 
-        function generateLiveSuggestion(u, f, t, i, c) {
+        function generateLiveSuggestion(u, f, t, i) {
             let userShort = u.split(" (")[0];
-            let culturalShort = c.split(" (")[0];
-            let suggestion = `Crear un MVP basado en ${t.split(" (")[0].toLowerCase()} que permite al ${userShort.toLowerCase()} resolver su problema de ${f.toLowerCase().replace('.', '')} usando una interfaz de ${i.toLowerCase().replace('.', '')}, aprovechando como gancho e identidad local la conexión con ${culturalShort.toLowerCase()}. Esto optimiza el consumo de energía cerebral del usuario al darle acceso directo a lo que necesita sin pasos complejos.`;
+            let suggestion = `Crear un MVP basado en ${t.split(" (")[0].toLowerCase()} que permite al ${userShort.toLowerCase()} resolver su problema de ${f.toLowerCase().replace('.', '')} usando una interfaz de ${i.toLowerCase().replace('.', '')}. Esto optimiza el consumo de energía cerebral del usuario al darle acceso directo a lo que necesita sin pasos complejos.`;
             document.getElementById('live-mvp-text').textContent = suggestion;
         }
 
-        function generateAIPrompt(u, f, t, i, c, coord) {
+        function generateAIPrompt(u, f, t, i, coord) {
             const prompt = `Actúa como un experto en metodologías ágiles y mentor de innovación tecnológica para el Hackathon Nicaragua. Ayúdame a desarrollar una propuesta de proyecto innovador y de impacto local para el pueblo de Nagarote.
 
 Tengo la siguiente combinación seleccionada en mi Matriz Morfológica (Código: ${coord}):
@@ -648,7 +618,6 @@ Tengo la siguiente combinación seleccionada en mi Matriz Morfológica (Código:
 - **Fricción / Necesidad a resolver:** ${f}
 - **Tecnología / Plataforma del MVP:** ${t}
 - **Forma de Interacción / Interfaz de Usuario:** ${i}
-- **Anclaje Cultural / Activo Identitario de Nagarote:** ${c}
 
 Por favor, estructúrame una propuesta detallada que contenga:
 1. **Nombre del Proyecto:** Un nombre atractivo y pegajoso que mezcle tecnología e identidad cultural de Nagarote.
@@ -685,7 +654,7 @@ Por favor, estructúrame una propuesta detallada que contenga:
             // Slots roll animation effect
             for (let i = 0; i < iterations; i++) {
                 setTimeout(() => {
-                    for (let colIdx = 0; colIdx < 5; colIdx++) {
+                    for (let colIdx = 0; colIdx < 4; colIdx++) {
                         // Generate random index
                         const randomRow = Math.floor(Math.random() * 8);
                         
